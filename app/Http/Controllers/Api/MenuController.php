@@ -12,6 +12,7 @@ class MenuController extends Controller
      * Ambil daftar menu (API)
      * Support:
      * - search (?search=kopi)
+     * - filter kategori (?category_id=1)
      * - pagination (?page=1&per_page=8)
      */
     public function index(Request $request)
@@ -23,6 +24,11 @@ class MenuController extends Controller
         // 🔍 SEARCH NAMA MENU
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // 🗂 FILTER KATEGORI
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
         }
 
         // 📄 PAGINATION

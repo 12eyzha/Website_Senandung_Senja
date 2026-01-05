@@ -1,0 +1,432 @@
+openapi: 3.0.3
+
+info:
+  title: Senandung POS API
+  description: |
+    REST API untuk sistem Point of Sale (POS) Senandung Senja.
+    - Role: Admin & Kasir
+    - Auth: Laravel Sanctum (Bearer Token)
+    - Report: PDF
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local server
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Menu (Kasir)
+  - name: Transaction
+  - name: Dashboard
+  - name: Report
+  - name: Admin - Menu
+  - name: Admin - Category
+  - name: Admin - User
+  - name: Admin - Transaction
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          example: admin@mail.com
+        password:
+          type: string
+          example: password
+
+    Menu:
+      type: object
+      required: [name, price, category_id]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+        category_id:
+          type: integer
+        is_available:
+          type: boolean
+
+    TransactionItemRequest:
+      type: object
+      required: [menu_id, qty]
+      properties:
+        menu_id:
+          type: integer
+        qty:
+          type: integer
+
+    TransactionRequest:
+      type: object
+      required: [items, payment_method]
+      properties:
+        payment_method:
+          type: string
+          example: cash
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionItemRequest'
+
+paths:
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: API OK
+
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login berhasil
+        '401':
+          description: Login gagal
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout berhasil
+
+  /menus:
+    get:
+      tags: [Menu (Kasir)]
+      summary: List menu tersedia
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List menu
+
+  /transactions:
+    post:
+      tags: [Transaction]
+      summary: Buat transaksi
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '201':
+          description: Transaksi berhasil
+
+  /transactions/history:
+    get:
+      tags: [Transaction]
+      summary: History transaksi
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: History transaksi
+
+  /transactions/{id}:
+    get:
+      tags: [Transaction]
+      summary: Detail transaksi
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail transaksi
+
+  /dashboard/daily-sales:
+    get:
+      tags: [Dashboard]
+      summary: Penjualan harian
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Data penjualan
+
+  /dashboard/monthly-sales:
+    get:
+      tags: [Dashboard]
+      summary: Penjualan bulanan
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Data penjualan
+
+  /reports/daily:
+    get:
+      tags: [Report]
+      summary: Laporan harian PDF
+      responses:
+        '200':
+          description: File PDF
+          content:
+            application/pdf: {}
+
+  /reports/monthly:
+    get:
+      tags: [Report]
+      summary: Laporan bulanan PDF
+      responses:
+        '200':
+          description: File PDF
+          content:
+            application/pdf: {}
+
+  /admin/categories:
+    get:
+      tags: [Admin - Category]
+      summary: List kategori
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List kategori
+
+    post:
+      tags: [Admin - Category]
+      summary: Tambah kategori
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Kategori dibuat
+
+  /admin/categories/{id}:
+    put:
+      tags: [Admin - Category]
+      summary: Update kategori
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Kategori diupdate
+
+    delete:
+      tags: [Admin - Category]
+      summary: Hapus kategori
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kategori dihapus
+
+  /admin/menus:
+    get:
+      tags: [Admin - Menu]
+      summary: List semua menu
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List menu
+
+    post:
+      tags: [Admin - Menu]
+      summary: Tambah menu
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Menu'
+      responses:
+        '201':
+          description: Menu ditambahkan
+
+  /admin/menus/{id}:
+    put:
+      tags: [Admin - Menu]
+      summary: Update menu
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Menu diupdate
+
+    delete:
+      tags: [Admin - Menu]
+      summary: Hapus menu
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Menu dihapus
+
+  /admin/users:
+    get:
+      tags: [Admin - User]
+      summary: List kasir
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List kasir
+
+    post:
+      tags: [Admin - User]
+      summary: Tambah kasir
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Kasir dibuat
+
+  /admin/users/{id}:
+    delete:
+      tags: [Admin - User]
+      summary: Hapus kasir
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kasir dihapus
+
+  /admin/transactions:
+    get:
+      tags: [Admin - Transaction]
+      summary: List semua transaksi
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List transaksi
+
+  /admin/transactions/{id}/cancel:
+    patch:
+      tags: [Admin - Transaction]
+      summary: Batalkan transaksi
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cancel_reason]
+              properties:
+                cancel_reason:
+                  type: string
+      responses:
+        '200':
+          description: Transaksi dibatalkan

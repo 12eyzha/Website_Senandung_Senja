@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\DashboardController;
 
 // ADMIN
 use App\Http\Controllers\Api\Admin\MenuController as AdminMenuController;
-use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 
 /*
@@ -39,7 +39,7 @@ Route::get('/reports/transaction/{id}', [ReportController::class, 'perTransactio
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATED USER
+| AUTHENTICATED USER (KASIR + ADMIN)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
@@ -50,6 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
      | MENU (KASIR)
      ======================= */
     Route::get('/menus', [MenuController::class, 'index']);
+
+    /* =======================
+     | CATEGORY (READ ONLY - KASIR)
+     ======================= */
+    Route::get('/categories', [AdminCategoryController::class, 'index']);
 
     /* =======================
      | TRANSACTION
@@ -90,10 +95,10 @@ Route::middleware('auth:sanctum')->group(function () {
         /* =======================
          | CATEGORY MASTER
          ======================= */
-        Route::get('/categories', [CategoryController::class, 'index']);
-        Route::post('/categories', [CategoryController::class, 'store']);
-        Route::put('/categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+        Route::get('/categories', [AdminCategoryController::class, 'index']);
+        Route::post('/categories', [AdminCategoryController::class, 'store']);
+        Route::put('/categories/{id}', [AdminCategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
 
         /* =======================
          | USER / KASIR MASTER
@@ -101,7 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::put('/users/{id}', [UserController::class, 'update']);
-        Route::patch('/users/{id}/toggle', [UserController::class, 'toggle']);
+        Route::patch('/users/{id}', [UserController::class, 'toggle']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
     });
 });

@@ -15,30 +15,31 @@ class MenuController extends Controller
      * - pagination
      */
     public function index(Request $request)
-    {
-        $query = Menu::query();
+{
+    $query = Menu::with('category'); // ✅ PENTING
 
-        // SEARCH
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        // FILTER CATEGORY
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // FILTER AVAILABILITY
-        if ($request->filled('is_available')) {
-            $query->where('is_available', $request->is_available);
-        }
-
-        $menus = $query
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return response()->json($menus);
+    // SEARCH
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+
+    // FILTER CATEGORY
+    if ($request->filled('category_id')) {
+        $query->where('category_id', $request->category_id);
+    }
+
+    // FILTER AVAILABILITY
+    if ($request->filled('is_available')) {
+        $query->where('is_available', $request->is_available);
+    }
+
+    $menus = $query
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+    return response()->json($menus);
+}
+
 
     /**
      * CREATE MENU
