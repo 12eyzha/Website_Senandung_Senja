@@ -6,8 +6,12 @@ use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\DashboardController;
+
+// ADMIN
 use App\Http\Controllers\Api\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\UserController;
+
 /*
 |--------------------------------------------------------------------------
 | HEALTH CHECK
@@ -24,7 +28,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 /*
 |--------------------------------------------------------------------------
-| REPORT PDF (PUBLIC / TANPA AUTH)
+| REPORT (PUBLIC)
 |--------------------------------------------------------------------------
 */
 Route::get('/reports/daily', [ReportController::class, 'daily']);
@@ -40,35 +44,24 @@ Route::get('/reports/transaction/{id}', [ReportController::class, 'perTransactio
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTH
-    |--------------------------------------------------------------------------
-    */
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | MENU
-    |--------------------------------------------------------------------------
-    */
+    /* =======================
+     | MENU (KASIR)
+     ======================= */
     Route::get('/menus', [MenuController::class, 'index']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | TRANSACTION
-    |--------------------------------------------------------------------------
-    */
+    /* =======================
+     | TRANSACTION
+     ======================= */
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::get('/transactions/history', [TransactionController::class, 'history']);
     Route::get('/transactions/summary', [TransactionController::class, 'summary']);
     Route::get('/transactions/{id}', [TransactionController::class, 'show']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD (SEMUA USER LOGIN)
-    |--------------------------------------------------------------------------
-    */
+    /* =======================
+     | DASHBOARD
+     ======================= */
     Route::get('/dashboard/daily-sales', [DashboardController::class, 'dailySales']);
     Route::get('/dashboard/monthly-sales', [DashboardController::class, 'monthlySales']);
     Route::get('/dashboard/payment-method', [DashboardController::class, 'paymentMethod']);
@@ -79,22 +72,36 @@ Route::middleware('auth:sanctum')->group(function () {
     | ADMIN ONLY
     |--------------------------------------------------------------------------
     */
-    Route::middleware('admin')->group(function () {
+    Route::middleware('admin')->prefix('admin')->group(function () {
 
+        /* TRANSACTION ADMIN */
         Route::patch('/transactions/{id}/cancel', [TransactionController::class, 'cancel']);
 
-        Route::middleware('admin')->group(function () {
+        /* =======================
+         | MENU MASTER
+         ======================= */
+        Route::get('/menus', [AdminMenuController::class, 'index']);
+        Route::post('/menus', [AdminMenuController::class, 'store']);
+        Route::get('/menus/{id}', [AdminMenuController::class, 'show']);
+        Route::put('/menus/{id}', [AdminMenuController::class, 'update']);
+        Route::patch('/menus/{id}/toggle', [AdminMenuController::class, 'toggle']);
+        Route::delete('/menus/{id}', [AdminMenuController::class, 'destroy']);
 
-        Route::get('/admin/menus', [AdminMenuController::class, 'index']);
-        Route::post('/admin/menus', [AdminMenuController::class, 'store']);
-        Route::get('/admin/menus/{id}', [AdminMenuController::class, 'show']);
-        Route::put('/admin/menus/{id}', [AdminMenuController::class, 'update']);
-        Route::delete('/admin/menus/{id}', [AdminMenuController::class, 'destroy']);
-        Route::patch('/admin/menus/{id}/toggle', [AdminMenuController::class, 'toggle']);
-        Route::get('/admin/categories', [CategoryController::class, 'index']);
-        Route::post('/admin/categories', [CategoryController::class, 'store']);
-        Route::put('/admin/categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy']);
-});
+        /* =======================
+         | CATEGORY MASTER
+         ======================= */
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
+        /* =======================
+         | USER / KASIR MASTER
+         ======================= */
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::patch('/users/{id}/toggle', [UserController::class, 'toggle']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
     });
 });

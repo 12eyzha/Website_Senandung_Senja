@@ -50,6 +50,7 @@ class MenuController extends Controller
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            
         ]);
 
         $menu = Menu::create([
@@ -76,24 +77,26 @@ class MenuController extends Controller
     /**
      * UPDATE MENU
      */
-    public function update(Request $request, $id)
-    {
-        $menu = Menu::findOrFail($id);
+   public function update(Request $request, $id)
+{
+    $menu = Menu::findOrFail($id);
 
-        $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+    $validated = $request->validate([
+        'name'         => 'required|string|max:255',
+        'description'  => 'nullable|string',
+        'price'        => 'required|numeric|min:0',
+        'category_id'  => 'required|exists:categories,id',
+        'is_available' => 'required|boolean', // ✅ FIX PENTING
+    ]);
 
-        $menu->update($validated);
+    $menu->update($validated);
 
-        return response()->json([
-            'message' => 'Menu berhasil diupdate',
-            'data' => $menu,
-        ]);
-    }
+    return response()->json([
+        'message' => 'Menu berhasil diupdate',
+        'data' => $menu,
+    ]);
+}
+
 
     /**
      * TOGGLE AVAILABILITY
