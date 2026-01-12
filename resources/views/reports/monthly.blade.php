@@ -19,7 +19,7 @@
         <tr>
             <th>Tanggal</th>
             <th>Kode</th>
-            <th>Customer</th>
+            <th>User</th>
             <th>Total</th>
         </tr>
     </thead>

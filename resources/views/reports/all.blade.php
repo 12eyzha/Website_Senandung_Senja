@@ -15,7 +15,7 @@
 
 <p>
     Kode: {{ $transaction->transaction_code }} <br>
-    Customer: {{ $transaction->user->name ?? '-' }} <br>
+    User: {{ $transaction->user->name ?? '-' }} <br>
     Tanggal: {{ $transaction->created_at->format('d-m-Y H:i') }}
 </p>
 

@@ -18,7 +18,7 @@
     <thead>
         <tr>
             <th>Kode</th>
-            <th>Customer</th>
+            <th>User</th>
             <th>Total</th>
             <th>Waktu</th>
         </tr>
